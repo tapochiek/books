@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Книжная полка</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Inter:wght@400;500;600&display=swap');
+
+:root{
+  --bg: #F6F3EC;
+  --surface: #FFFFFF;
+  --surface-2: #EFEADD;
+  --border: #E1DAC7;
+  --ink: #23281F;
+  --ink-soft: #6B6A5C;
+  --accent: #35573F;
+  --accent-soft: #E4EBE0;
+  --accent-ink: #1F3826;
+  --gold: #B08628;
+  --danger: #A23B2E;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(35,40,31,0.06), 0 8px 20px rgba(35,40,31,0.05);
+}
+html[data-theme="dark"]{
+  --bg: #1B1D18;
+  --surface: #23261F;
+  --surface-2: #2C2F27;
+  --border: #3A3D33;
+  --ink: #EAE7DA;
+  --ink-soft: #9C9C8C;
+  --accent: #7FAE8B;
+  --accent-soft: #2C3B2C;
+  --accent-ink: #C9E3CE;
+  --gold: #D9B45C;
+  --danger: #E07A64;
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 24px rgba(0,0,0,0.28);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Inter', sans-serif;
+  min-height:100vh;
+  transition:background 0.2s ease, color 0.2s ease;
+}
+.wrap{ max-width:920px; margin:0 auto; padding:0 24px 70px; }
+
+header{ padding:40px 0 24px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+.brand h1{
+  font-family:'Newsreader', serif;
+  font-weight:600;
+  font-size:32px;
+  margin:0 0 6px;
+  letter-spacing:-0.2px;
+}
+.brand p{ margin:0; font-size:14px; color:var(--ink-soft); }
+
+.header-actions{ display:flex; align-items:center; gap:10px; }
+.icon-btn{
+  width:38px; height:38px;
+  border-radius:50%;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--ink);
+  display:flex; align-items:center; justify-content:center;
+  cursor:pointer;
+  font-size:16px;
+}
+.icon-btn:hover{ border-color:var(--accent); }
+.who-pill{
+  font-size:13px;
+  color:var(--ink-soft);
+  border:1px solid var(--border);
+  background:var(--surface);
+  padding:8px 14px;
+  border-radius:20px;
+  display:flex; align-items:center; gap:8px;
+}
+.who-pill b{ color:var(--ink); font-weight:500; }
+.who-pill button{
+  background:none; border:none; color:var(--accent);
+  font-size:12px; cursor:pointer; text-decoration:underline; padding:0;
+}
+
+.shelves-row{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:28px; }
+.shelves-row .lbl{ font-size:13px; color:var(--ink-soft); margin-right:2px; }
+.shelf-chip{
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--ink-soft);
+  padding:6px 13px;
+  border-radius:16px;
+  font-size:13px;
+  cursor:pointer;
+}
+.shelf-chip:hover{ border-color:var(--accent); }
+.shelf-chip.active{ border-color:var(--accent); color:var(--accent-ink); background:var(--accent-soft); }
+
+.banner{
+  background:var(--accent-soft);
+  border:1px solid var(--accent);
+  color:var(--accent-ink);
+  padding:11px 16px;
+  border-radius:var(--radius);
+  margin-bottom:22px;
+  font-size:14px;
+  display:flex; justify-content:space-between; align-items:center; gap:12px;
+}
+.banner button{
+  background:none; border:1px solid var(--accent-ink); color:var(--accent-ink);
+  padding:5px 12px; border-radius:6px; cursor:pointer; white-space:nowrap; font-size:13px;
+}
+
+section{ margin-bottom:32px; }
+.section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
+.section-head h2{ font-family:'Newsreader', serif; font-size:20px; font-weight:500; margin:0; }
+.section-head span{ font-size:13px; color:var(--ink-soft); }
+
+.search-box{ position:relative; }
+.search-box input{
+  width:100%;
+  font-family:'Inter', sans-serif;
+  font-size:15px;
+  padding:13px 46px 13px 16px;
+  border-radius:var(--radius);
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--ink);
+}
+.search-box input:focus{ outline:none; border-color:var(--accent); }
+.search-box .spinner{
+  position:absolute; right:16px; top:50%; transform:translateY(-50%);
+  width:16px; height:16px; border-radius:50%;
+  border:2px solid var(--border); border-top-color:var(--accent);
+  animation:spin 0.7s linear infinite; display:none;
+}
+.search-box .spinner.on{ display:block; }
+@keyframes spin{ to{ transform:translateY(-50%) rotate(360deg); } }
+
+.results{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+.result-row{
+  display:flex; gap:12px; align-items:center;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:10px 12px;
+}
+.result-cover{ width:36px; height:52px; object-fit:cover; border-radius:3px; background:var(--surface-2); flex-shrink:0; }
+.result-cover.placeholder{ display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--ink-soft); }
+.result-info{ flex:1; min-width:0; }
+.result-title{ font-size:14px; font-weight:500; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.result-meta{ font-size:12px; color:var(--ink-soft); margin:2px 0 0; }
+.result-status{
+  font-size:13px; padding:8px 10px; border-radius:7px; border:1px solid var(--border);
+  background:var(--surface); color:var(--ink);
+}
+.hint{ font-size:13px; color:var(--ink-soft); padding:6px 2px; }
+.manual-link{ font-size:13px; color:var(--accent); cursor:pointer; text-decoration:underline; }
+
+.manual-form{
+  display:none;
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:16px; margin-top:12px; gap:10px; flex-wrap:wrap;
+}
+.manual-form.open{ display:flex; }
+.manual-form input, .manual-form select{
+  font-family:'Inter', sans-serif; font-size:14px; padding:10px 12px;
+  border:1px solid var(--border); border-radius:7px; background:var(--bg); color:var(--ink);
+}
+.manual-form input#m-title{ flex:2; min-width:180px; }
+.manual-form input#m-author{ flex:1; min-width:140px; }
+.manual-form .row-actions{ width:100%; display:flex; justify-content:flex-end; gap:8px; }
+
+.btn{
+  font-family:'Inter', sans-serif; font-size:14px; font-weight:500;
+  padding:9px 17px; border-radius:7px; border:1px solid var(--accent);
+  background:var(--accent); color:#fff; cursor:pointer;
+}
+html[data-theme="dark"] .btn{ color:#12180F; }
+.btn.ghost{ background:none; color:var(--ink-soft); border-color:var(--border); }
+.btn:hover{ opacity:0.9; }
+
+.filter-tabs{ display:flex; gap:4px; margin-bottom:14px; border-bottom:1px solid var(--border); }
+.filter-tab{
+  background:none; border:none; color:var(--ink-soft); font-size:13px;
+  padding:9px 14px; cursor:pointer; border-bottom:2px solid transparent; position:relative; top:1px;
+}
+.filter-tab.active{ color:var(--ink); border-bottom-color:var(--gold); }
+.filter-tab .n{ color:var(--gold); margin-left:3px; }
+
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; }
+.card{
+  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
+  padding:14px; display:flex; gap:12px; box-shadow:var(--shadow);
+}
+.card-cover{ width:52px; height:76px; border-radius:4px; object-fit:cover; background:var(--surface-2); flex-shrink:0; }
+.card-cover.placeholder{ display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--ink-soft); }
+.card-body{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.card-title{ font-family:'Newsreader', serif; font-size:16px; font-weight:500; margin:0 0 2px; line-height:1.25; }
+.card-author{ font-size:12px; color:var(--ink-soft); margin:0 0 8px; }
+.card-note{ font-size:12px; color:var(--ink-soft); margin:0 0 8px; line-height:1.4; }
+.card-bottom{ margin-top:auto; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+.status-select{
+  font-size:12px; padding:5px 8px; border-radius:6px; border:1px solid var(--border);
+  background:var(--bg); color:var(--ink); cursor:pointer; max-width:120px;
+}
+.status-pill{ font-size:12px; color:var(--ink-soft); }
+.card-del{ background:none; border:none; color:var(--ink-soft); font-size:12px; cursor:pointer; text-decoration:underline; }
+.card-del:hover{ color:var(--danger); }
+
+.empty{ font-size:14px; color:var(--ink-soft); padding:24px 0; text-align:center; }
+
+.overlay{ position:fixed; inset:0; background:rgba(20,22,17,0.55); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; }
+.overlay.open{ display:flex; }
+.modal{ background:var(--surface); color:var(--ink); border-radius:12px; padding:26px; max-width:380px; width:100%; box-shadow:var(--shadow); }
+.modal h2{ font-family:'Newsreader', serif; font-size:21px; margin:0 0 6px; }
+.modal p{ font-size:13px; color:var(--ink-soft); margin:0 0 16px; line-height:1.5; }
+.modal input{ width:100%; font-size:15px; padding:11px 12px; border:1px solid var(--border); border-radius:7px; margin-bottom:12px; background:var(--bg); color:var(--ink); }
+.modal .err{ color:var(--danger); font-size:12px; margin:-8px 0 12px; display:none; }
+.modal .row-actions{ display:flex; justify-content:flex-end; gap:8px; }
+
+.setup-note{ font-size:12px; color:var(--ink-soft); text-align:center; margin-top:40px; line-height:1.6; }
+
+@media (max-width:600px){
+  .brand h1{ font-size:26px; }
+  header{ padding-top:28px; }
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="brand">
+      <h1>Книжная полка</h1>
+      <p>что купить, что прочитать</p>
+    </div>
+    <div class="header-actions">
+      <div class="who-pill" id="who-pill"></div>
+      <button class="icon-btn" id="theme-toggle" title="сменить тему">◐</button>
+    </div>
+  </header>
+
+  <div class="shelves-row" id="shelves-row"></div>
+
+  <div class="banner" id="viewing-banner" style="display:none;">
+    <span id="viewing-text"></span>
+    <button id="back-to-mine">к своей полке</button>
+  </div>
+
+  <section id="find-section">
+    <div class="section-head"><h2>Найти книгу</h2><span>по названию или автору</span></div>
+    <div class="search-box">
+      <input type="text" id="book-search" placeholder="например, Мастер и Маргарита">
+      <div class="spinner" id="search-spinner"></div>
+    </div>
+    <div class="results" id="search-results"></div>
+    <div class="hint" id="search-hint" style="display:none;">Не нашлось? <span class="manual-link" id="open-manual">добавить вручную</span></div>
+    <div class="manual-form" id="manual-form">
+      <input type="text" id="m-title" placeholder="название">
+      <input type="text" id="m-author" placeholder="автор">
+      <select id="m-status">
+        <option value="buy">хочу купить</option>
+        <option value="read">хочу прочитать</option>
+        <option value="done">прочитано</option>
+      </select>
+      <div class="row-actions">
+        <button class="btn ghost" id="m-cancel">отмена</button>
+        <button class="btn" id="m-save">добавить</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-head"><h2 id="shelf-heading">Моя полка</h2></div>
+    <div class="filter-tabs" id="tabs"></div>
+    <div class="grid" id="grid"></div>
+    <div class="empty" id="empty" style="display:none;"></div>
+  </section>
+
+  <p class="setup-note" id="setup-note"></p>
+</div>
+
+<div class="overlay open" id="onboard-overlay">
+  <div class="modal">
+    <h2>Как тебя зовут?</h2>
+    <p>Друзья будут находить твою полку по этому имени. Можно просто ник.</p>
+    <input type="text" id="nick-input" placeholder="например, Тапок" maxlength="24">
+    <div class="err" id="nick-err">введи имя</div>
+    <div class="row-actions"><button class="btn" id="nick-save">начать</button></div>
+  </div>
+</div>
+
+<script type="module">
+/*
+  ЧТОБЫ ОПУБЛИКОВАТЬ САЙТ ДЛЯ СЕБЯ И ДРУЗЕЙ:
+  1) Заведи бесплатный проект на https://console.firebase.google.com (без карты)
+  2) В нём включи Firestore Database (режим production, регион любой)
+  3) В настройках Firestore -> Rules вставь:
+       rules_version = '2';
+       service cloud.firestore {
+         match /databases/{database}/documents {
+           match /shelves/{nickname} { allow read, write: if true; }
+         }
+       }
+  4) В настройках проекта возьми "firebaseConfig" и вставь его значения ниже
+  5) Залей этот файл на GitHub Pages / Netlify / Vercel / Cloudflare Pages — бесплатно
+  Пока конфиг не заполнен, сайт работает только у тебя в браузере (localStorage).
+*/
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBYRokm5K8kow7P87dwujdfBXkUTDjWDdk",
+  authDomain: "kartoteka-92b39.firebaseapp.com",
+  projectId: "kartoteka-92b39",
+  storageBucket: "kartoteka-92b39.firebasestorage.app",
+  messagingSenderId: "160834295146",
+  appId: "1:160834295146:web:3eb2872e3cf16049eb4113"
+};
+
+const STATUSES = [
+  { id:'buy', label:'хочу купить' },
+  { id:'read', label:'хочу прочитать' },
+  { id:'done', label:'прочитано' },
+];
+function statusLabel(id){ return (STATUSES.find(s=>s.id===id)||{}).label || id; }
+
+let db = null;
+let fsFns = null;
+const cloudEnabled = !!FIREBASE_CONFIG.projectId;
+
+async function initFirebase(){
+  if(!cloudEnabled) return;
+  try{
+    const app = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js');
+    const fs = await import('https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js');
+    const firebaseApp = app.initializeApp(FIREBASE_CONFIG);
+    db = fs.getFirestore(firebaseApp);
+    fsFns = fs;
+  }catch(e){
+    console.error('firebase init failed, falling back to local storage only', e);
+    db = null;
+  }
+}
+
+async function cloudGetShelf(name){
+  if(!db) return null;
+  const ref = fsFns.doc(db, 'shelves', name);
+  const snap = await fsFns.getDoc(ref);
+  return snap.exists() ? (snap.data().books || []) : [];
+}
+async function cloudSetShelf(name, books){
+  if(!db) return;
+  const ref = fsFns.doc(db, 'shelves', name);
+  await fsFns.setDoc(ref, { books, updatedAt: Date.now() });
+}
+async function cloudListShelves(){
+  if(!db) return [];
+  const snap = await fsFns.getDocs(fsFns.collection(db, 'shelves'));
+  const names = [];
+  snap.forEach(d => names.push(d.id));
+  return names;
+}
+
+function localGet(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+function localSet(key, val){ try{ localStorage.setItem(key, val); }catch(e){} }
+
+let me = null;
+let viewing = null;
+let books = [];
+let directory = [];
+let activeTab = 'all';
+let manualStatus = 'buy';
+
+function escapeHtml(s){
+  return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* theme */
+function initTheme(){
+  const saved = localGet('theme') || (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+  document.documentElement.setAttribute('data-theme', saved);
+  updateThemeIcon();
+}
+function updateThemeIcon(){
+  const t = document.documentElement.getAttribute('data-theme');
+  document.getElementById('theme-toggle').textContent = t === 'dark' ? '☀' : '☾';
+}
+document.getElementById('theme-toggle').addEventListener('click', ()=>{
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localSet('theme', next);
+  updateThemeIcon();
+});
+
+/* onboarding */
+async function boot(){
+  initTheme();
+  await initFirebase();
+  document.getElementById('setup-note').textContent = cloudEnabled
+    ? ''
+    : 'Данные пока хранятся только в этом браузере. Заполни FIREBASE_CONFIG в коде файла, чтобы делиться полкой с друзьями.';
+
+  const nick = localGet('nickname');
+  if(nick){
+    me = nick;
+    document.getElementById('onboard-overlay').classList.remove('open');
+    await afterLogin();
+  } else {
+    document.getElementById('onboard-overlay').classList.add('open');
+  }
+}
+
+document.getElementById('nick-save').addEventListener('click', saveNick);
+document.getElementById('nick-input').addEventListener('keydown', e=>{ if(e.key==='Enter') saveNick(); });
+async function saveNick(){
+  const val = document.getElementById('nick-input').value.trim();
+  if(!val){ document.getElementById('nick-err').style.display='block'; return; }
+  me = val;
+  localSet('nickname', val);
+  document.getElementById('onboard-overlay').classList.remove('open');
+  await afterLogin();
+}
+
+async function afterLogin(){
+  viewing = me;
+  if(cloudEnabled){
+    let shelf = await cloudGetShelf(me);
+    if(shelf === null) shelf = [];
+    if(!(await cloudListShelves()).includes(me)){
+      await cloudSetShelf(me, shelf);
+    }
+    books = shelf;
+    directory = await cloudListShelves();
+    if(!directory.includes(me)) directory.push(me);
+  } else {
+    books = JSON.parse(localGet('shelf:'+me) || '[]');
+    directory = [me];
+  }
+  renderWho();
+  renderShelves();
+  renderTabs();
+  render();
+}
+
+function renderWho(){
+  document.getElementById('who-pill').innerHTML =
+    'ты: <b>'+escapeHtml(me)+'</b> <button id="change-nick">сменить</button>';
+  document.getElementById('change-nick').addEventListener('click', ()=>{
+    document.getElementById('nick-input').value = me;
+    document.getElementById('nick-err').style.display='none';
+    document.getElementById('onboard-overlay').classList.add('open');
+  });
+}
+
+function renderShelves(){
+  const row = document.getElementById('shelves-row');
+  row.innerHTML = '<span class="lbl">полки:</span>';
+  directory.forEach(name=>{
+    const chip = document.createElement('button');
+    chip.className = 'shelf-chip' + (name===viewing ? ' active' : '');
+    chip.textContent = name===me ? name+' (ты)' : name;
+    chip.addEventListener('click', ()=>switchTo(name));
+    row.appendChild(chip);
+  });
+}
+
+async function switchTo(name){
+  viewing = name;
+  if(cloudEnabled){
+    books = await cloudGetShelf(name) || [];
+  } else {
+    books = name===me ? JSON.parse(localGet('shelf:'+me) || '[]') : [];
+  }
+  const readOnly = name !== me;
+  document.getElementById('viewing-banner').style.display = readOnly ? 'flex' : 'none';
+  document.getElementById('find-section').style.display = readOnly ? 'none' : 'block';
+  document.getElementById('shelf-heading').textContent = readOnly ? 'Полка «'+name+'»' : 'Моя полка';
+  if(readOnly) document.getElementById('viewing-text').textContent = 'ты смотришь полку «'+name+'» — только для чтения';
+  activeTab = 'all';
+  renderShelves();
+  renderTabs();
+  render();
+}
+document.getElementById('back-to-mine').addEventListener('click', ()=>switchTo(me));
+
+async function saveShelf(){
+  if(cloudEnabled){ await cloudSetShelf(me, books); }
+  else{ localSet('shelf:'+me, JSON.stringify(books)); }
+}
+
+function renderTabs(){
+  const tabs = document.getElementById('tabs');
+  tabs.innerHTML = '';
+  [{id:'all', label:'все'}, ...STATUSES].forEach(d=>{
+    const count = d.id==='all' ? books.length : books.filter(b=>b.status===d.id).length;
+    const btn = document.createElement('button');
+    btn.className = 'filter-tab' + (activeTab===d.id ? ' active' : '');
+    btn.innerHTML = d.label + ' <span class="n">'+count+'</span>';
+    btn.addEventListener('click', ()=>{ activeTab = d.id; renderTabs(); render(); });
+    tabs.appendChild(btn);
+  });
+}
+
+function coverImg(coverId, cls){
+  if(coverId) return '<img class="'+cls+'" src="https://covers.openlibrary.org/b/id/'+coverId+'-M.jpg" alt="">';
+  return '<div class="'+cls+' placeholder">▤</div>';
+}
+
+function render(){
+  const grid = document.getElementById('grid');
+  const empty = document.getElementById('empty');
+  const readOnly = viewing !== me;
+  let list = books.slice();
+  if(activeTab !== 'all') list = list.filter(b=>b.status===activeTab);
+
+  grid.innerHTML = '';
+  if(list.length===0){
+    empty.style.display='block';
+    empty.textContent = books.length===0 ? (readOnly ? 'здесь пока пусто' : 'полка пуста — найди книгу выше') : 'ничего в этой вкладке';
+    return;
+  }
+  empty.style.display='none';
+
+  list.forEach(b=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    let bottom;
+    if(readOnly){
+      bottom = '<span class="status-pill">'+statusLabel(b.status)+'</span>';
+    } else {
+      const opts = STATUSES.map(s=>'<option value="'+s.id+'"'+(s.id===b.status?' selected':'')+'>'+s.label+'</option>').join('');
+      bottom = '<select class="status-select" data-id="'+b.id+'">'+opts+'</select>'+
+               '<button class="card-del" data-id="'+b.id+'">удалить</button>';
+    }
+    card.innerHTML =
+      coverImg(b.coverId, 'card-cover') +
+      '<div class="card-body">'+
+        '<p class="card-title">'+escapeHtml(b.title)+'</p>'+
+        '<p class="card-author">'+escapeHtml(b.author||'')+(b.year ? ' · '+b.year : '')+'</p>'+
+        (b.note ? '<p class="card-note">'+escapeHtml(b.note)+'</p>' : '') +
+        '<div class="card-bottom">'+bottom+'</div>'+
+      '</div>';
+    grid.appendChild(card);
+  });
+
+  if(!readOnly){
+    grid.querySelectorAll('.status-select[data-id]').forEach(sel=>{
+      sel.addEventListener('change', async ()=>{
+        const book = books.find(x=>x.id===sel.getAttribute('data-id'));
+        if(book){ book.status = sel.value; await saveShelf(); renderTabs(); render(); }
+      });
+    });
+    grid.querySelectorAll('.card-del').forEach(btn=>{
+      btn.addEventListener('click', async ()=>{
+        books = books.filter(x=>x.id!==btn.getAttribute('data-id'));
+        await saveShelf(); renderTabs(); render();
+      });
+    });
+  }
+}
+
+function addBook(entry){
+  books.unshift({
+    id: 'b'+Date.now()+Math.random().toString(36).slice(2,7),
+    title: entry.title, author: entry.author||'', year: entry.year||'',
+    coverId: entry.coverId||null, status: entry.status||'buy', note: entry.note||'',
+    createdAt: Date.now()
+  });
+}
+
+/* book search (Open Library, no key needed) */
+let searchTimer = null;
+const searchInput = document.getElementById('book-search');
+searchInput.addEventListener('input', ()=>{
+  clearTimeout(searchTimer);
+  const q = searchInput.value.trim();
+  if(q.length < 2){ document.getElementById('search-results').innerHTML=''; document.getElementById('search-hint').style.display='none'; return; }
+  searchTimer = setTimeout(()=>runSearch(q), 400);
+});
+
+async function runSearch(q){
+  const spinner = document.getElementById('search-spinner');
+  const results = document.getElementById('search-results');
+  const hint = document.getElementById('search-hint');
+  spinner.classList.add('on');
+  try{
+    const res = await fetch('https://openlibrary.org/search.json?q='+encodeURIComponent(q)+'&limit=6&fields=title,author_name,first_publish_year,cover_i');
+    const data = await res.json();
+    const docs = (data.docs || []).slice(0,6);
+    results.innerHTML = '';
+    docs.forEach(d=>{
+      const row = document.createElement('div');
+      row.className = 'result-row';
+      const opts = STATUSES.map(s=>'<option value="'+s.id+'">'+s.label+'</option>').join('');
+      row.innerHTML =
+        coverImg(d.cover_i, 'result-cover') +
+        '<div class="result-info">'+
+          '<p class="result-title">'+escapeHtml(d.title)+'</p>'+
+          '<p class="result-meta">'+escapeHtml((d.author_name||[]).slice(0,2).join(', '))+(d.first_publish_year ? ' · '+d.first_publish_year : '')+'</p>'+
+        '</div>'+
+        '<select class="result-status">'+opts+'</select>'+
+        '<button class="btn" data-idx="'+docs.indexOf(d)+'">+</button>';
+      results.appendChild(row);
+      const btn = row.querySelector('button');
+      const sel = row.querySelector('.result-status');
+      btn.addEventListener('click', async ()=>{
+        addBook({
+          title: d.title, author: (d.author_name||[])[0]||'', year: d.first_publish_year||'',
+          coverId: d.cover_i||null, status: sel.value
+        });
+        await saveShelf();
+        renderTabs(); render();
+        btn.textContent = '✓'; btn.disabled = true;
+      });
+    });
+    hint.style.display = docs.length ? 'block' : 'block';
+    hint.firstChild ? null : null;
+    if(!docs.length){ results.innerHTML = ''; }
+  }catch(e){
+    results.innerHTML = '<div class="hint">не получилось найти — проверь соединение</div>';
+  }finally{
+    spinner.classList.remove('on');
+  }
+}
+
+document.getElementById('open-manual').addEventListener('click', ()=>{
+  document.getElementById('manual-form').classList.add('open');
+  document.getElementById('m-title').focus();
+});
+document.getElementById('m-cancel').addEventListener('click', ()=>{
+  document.getElementById('manual-form').classList.remove('open');
+});
+document.getElementById('m-save').addEventListener('click', async ()=>{
+  const title = document.getElementById('m-title').value.trim();
+  if(!title){ document.getElementById('m-title').focus(); return; }
+  const author = document.getElementById('m-author').value.trim();
+  const status = document.getElementById('m-status').value;
+  addBook({ title, author, status });
+  await saveShelf();
+  document.getElementById('manual-form').classList.remove('open');
+  document.getElementById('m-title').value=''; document.getElementById('m-author').value='';
+  renderTabs(); render();
+});
+
+boot();
+</script>
+</body>
+</html>
