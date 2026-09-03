@@ -160,7 +160,9 @@ section{ margin-bottom:20px; }
 .result-row.in{ opacity:1; transform:translateY(0); }
 .result-cover{ width:36px; height:52px; object-fit:cover; border-radius:3px; background:var(--surface-2); flex-shrink:0; box-shadow:0 1px 3px rgba(0,0,0,0.15); filter:blur(0); transition:filter 0.3s ease; }
 .result-cover.loading{ filter:blur(6px); }
-.result-cover.placeholder{ display:flex; align-items:center; justify-content:center; text-align:center; font-family:'Newsreader', serif; font-size:8px; line-height:1.15; padding:3px; color:var(--ink-soft); }
+.result-cover.placeholder{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; text-align:center; background:var(--surface-2); border:1px solid var(--border); padding:2px; }
+.result-cover.placeholder svg{ width:14px; height:14px; }
+.result-cover.placeholder .ph-title{ display:none; }
 .result-info{ flex:1; min-width:0; }
 .result-title{ font-size:14px; font-weight:500; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .result-meta{ font-size:12px; color:var(--ink-soft); margin:2px 0 0; }
@@ -210,11 +212,11 @@ html[data-theme="dark"] .btn{ color:#12180F; }
   border:1px solid var(--border); background:var(--surface); color:var(--ink); cursor:pointer;
 }
 
-.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(132px, 1fr)); gap:26px 18px; }
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(132px, 1fr)); gap:26px 18px; transition:opacity 0.18s ease, transform 0.18s ease; }
 .book{ display:flex; flex-direction:column; }
 .book.dragging{ opacity:0.35; }
 .book.drag-over .book-cover{ outline:2px dashed var(--gold); outline-offset:3px; }
-.book-cover-wrap{ position:relative; margin-bottom:10px; }
+.book-cover-wrap{ position:relative; margin-bottom:10px; overflow:visible; }
 .book-cover{
   width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:4px;
   box-shadow:0 2px 5px rgba(20,20,15,0.18), 0 8px 16px rgba(20,20,15,0.12);
@@ -226,29 +228,26 @@ html[data-theme="dark"] .btn{ color:#12180F; }
   box-shadow:0 6px 10px rgba(20,20,15,0.22), 0 14px 22px rgba(20,20,15,0.16);
 }
 .book-cover.placeholder{
-  display:flex; align-items:center; justify-content:center; text-align:center;
-  font-family:'Newsreader', serif; font-size:13px; line-height:1.3; padding:10px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
+  text-align:center; background:var(--surface-2); border:1px solid var(--border); padding:14px 10px;
 }
-.book-cover.placeholder.c0{ background:var(--accent-soft); color:var(--accent-ink); }
-.book-cover.placeholder.c1{ background:var(--gold-soft); color:var(--gold); }
-.book-cover.placeholder.c2{ background:#E9E1F2; color:#4B3A6B; }
-.book-cover.placeholder.c3{ background:#F2E0DA; color:#8A4630; }
-.book-cover.placeholder.c4{ background:#DCEAF0; color:#2C5A6B; }
-html[data-theme="dark"] .book-cover.placeholder.c2{ background:#332B44; color:#C9BEDD; }
-html[data-theme="dark"] .book-cover.placeholder.c3{ background:#3C2A22; color:#DDA88F; }
-html[data-theme="dark"] .book-cover.placeholder.c4{ background:#1F3540; color:#A9D4E3; }
+.book-cover.placeholder svg{ width:26px; height:26px; flex-shrink:0; }
+.book-cover.placeholder .ph-title{
+  font-family:'Newsreader', serif; font-size:11px; line-height:1.25; color:var(--ink-soft);
+  display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;
+}
+.book-cover.placeholder.c0 svg, .result-cover.placeholder.c0 svg{ color:var(--accent); }
+.book-cover.placeholder.c1 svg, .result-cover.placeholder.c1 svg{ color:var(--gold); }
+.book-cover.placeholder.c2 svg, .result-cover.placeholder.c2 svg{ color:#8A6FB0; }
+.book-cover.placeholder.c3 svg, .result-cover.placeholder.c3 svg{ color:#C1704A; }
+.book-cover.placeholder.c4 svg, .result-cover.placeholder.c4 svg{ color:#4C8FA8; }
 .ribbon{
-  position:absolute; top:8px; left:-6px; background:var(--danger); color:#fff;
-  font-size:9.5px; font-weight:500; padding:2px 8px 2px 10px; border-radius:0 3px 3px 0;
-  letter-spacing:0.3px; box-shadow:0 1px 3px rgba(0,0,0,0.25);
-}
-.ribbon::after{
-  content:''; position:absolute; left:0; top:100%; border-style:solid;
-  border-width:3px 3px 0 0; border-color:transparent; filter:brightness(0.6);
-  border-top-color: inherit;
+  position:absolute; top:8px; left:8px; z-index:2; background:var(--danger); color:#fff;
+  font-size:9.5px; font-weight:500; padding:3px 8px; border-radius:4px;
+  letter-spacing:0.3px; box-shadow:0 1px 3px rgba(0,0,0,0.3);
 }
 .book-del{
-  position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%;
+  position:absolute; top:-8px; right:-8px; z-index:2; width:24px; height:24px; border-radius:50%;
   border:1px solid var(--border); background:var(--surface); color:var(--ink-soft);
   font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;
   opacity:0; transition:opacity 0.15s ease;
@@ -610,6 +609,10 @@ function renderStats(){
 }
 
 async function switchTo(name){
+  const grid = document.getElementById('grid');
+  grid.style.opacity = '0';
+  grid.style.transform = 'translateY(6px)';
+  await new Promise(r=>setTimeout(r, 130));
   viewing = name;
   if(cloudEnabled){
     books = await cloudGetShelf(name) || [];
@@ -627,6 +630,10 @@ async function switchTo(name){
   renderTabs();
   renderStats();
   render();
+  requestAnimationFrame(()=>{
+    grid.style.transform = 'translateY(0)';
+    grid.style.opacity = '1';
+  });
 }
 document.getElementById('back-to-mine').addEventListener('click', ()=>switchTo(me));
 
@@ -650,7 +657,7 @@ function renderTabs(){
 
 document.getElementById('sort-select').addEventListener('change', e=>{
   sortMode = e.target.value;
-  render();
+  flipAnimate(document.getElementById('grid'), render);
 });
 
 function sortBooks(arr){
@@ -682,19 +689,61 @@ function applyReorder(newOrderIds){
   });
 }
 
-function coverImg(coverUrl, title, cls){
-  if(coverUrl) return '<img class="'+cls+'" src="'+coverUrl+'" alt="" referrerpolicy="no-referrer" data-title="'+escapeHtml(title||'')+'">';
-  return '<div class="'+cls+' placeholder '+hashClass(title)+'">'+escapeHtml(title||'')+'</div>';
+function coverImg(covers, title, cls, withLoading){
+  const list = (Array.isArray(covers) ? covers : [covers]).filter(Boolean);
+  if(list.length===0) return placeholderHtml(title, cls);
+  const first = list[0];
+  const rest = list.slice(1).join('|');
+  const loadingClass = withLoading ? ' loading' : '';
+  const onloadAttr = withLoading ? ' onload="this.classList.remove(\'loading\')"' : '';
+  return '<img class="'+cls+loadingClass+'" src="'+first+'" alt="" referrerpolicy="no-referrer" data-title="'+escapeHtml(title||'')+'" data-fallbacks="'+escapeHtml(rest)+'"'+onloadAttr+'>';
+}
+function placeholderHtml(title, cls){
+  return '<div class="'+cls+' placeholder '+hashClass(title)+'">'+
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5c3-1.5 6-1.5 8 0v14c-2-1.5-5-1.5-8 0z"/><path d="M20 5.5c-3-1.5-6-1.5-8 0v14c2-1.5 5-1.5 8 0z"/></svg>'+
+    '<span class="ph-title">'+escapeHtml(title||'')+'</span>'+
+  '</div>';
+}
+function bookCovers(b){
+  if(b.covers && b.covers.length) return b.covers;
+  if(b.cover) return [b.cover];
+  return [];
 }
 function attachCoverFallback(scopeEl){
   scopeEl.querySelectorAll('img.book-cover, img.result-cover').forEach(img=>{
-    img.addEventListener('error', ()=>{
-      const title = img.getAttribute('data-title') || '';
-      const div = document.createElement('div');
-      div.className = img.className.replace('loading','').trim() + ' placeholder ' + hashClass(title);
-      div.textContent = title;
-      img.replaceWith(div);
-    }, { once:true });
+    img.addEventListener('error', function onErr(){
+      const fallbacks = (img.getAttribute('data-fallbacks')||'').split('|').filter(Boolean);
+      if(fallbacks.length){
+        const next = fallbacks.shift();
+        img.setAttribute('data-fallbacks', fallbacks.join('|'));
+        img.src = next;
+      } else {
+        const title = img.getAttribute('data-title') || '';
+        const cls = img.className.replace('loading','').trim();
+        const wrap = document.createElement('div');
+        wrap.innerHTML = placeholderHtml(title, cls);
+        img.replaceWith(wrap.firstElementChild);
+      }
+    });
+  });
+}
+function flipAnimate(grid, changeFn){
+  const before = new Map();
+  grid.querySelectorAll('.book').forEach(el=>{ before.set(el.dataset.id, el.getBoundingClientRect()); });
+  changeFn();
+  grid.querySelectorAll('.book').forEach(el=>{
+    const prev = before.get(el.dataset.id);
+    if(!prev) return;
+    const now = el.getBoundingClientRect();
+    const dx = prev.left - now.left, dy = prev.top - now.top;
+    if(dx || dy){
+      el.style.transition = 'none';
+      el.style.transform = 'translate('+dx+'px,'+dy+'px)';
+      requestAnimationFrame(()=>{
+        el.style.transition = 'transform 0.25s ease';
+        el.style.transform = '';
+      });
+    }
   });
 }
 
@@ -725,6 +774,7 @@ function render(){
   list.forEach(b=>{
     const book = document.createElement('div');
     book.className = 'book';
+    book.dataset.id = b.id;
     if(manualDrag) book.draggable = true;
     const isNew = b.createdAt && (now - b.createdAt) < 3*24*60*60*1000;
     const friends = friendMap[(b.title||'').trim().toLowerCase()];
@@ -734,7 +784,7 @@ function render(){
     book.innerHTML =
       '<div class="book-cover-wrap">'+
         (isNew ? '<span class="ribbon">новое</span>' : '')+
-        coverImg(b.cover, b.title, 'book-cover')+
+        coverImg(bookCovers(b), b.title, 'book-cover', false)+
         (readOnly ? '' : '<button class="book-del" data-id="'+b.id+'" title="удалить">✕</button>')+
       '</div>'+
       '<p class="book-title">'+escapeHtml(b.title)+'</p>'+
@@ -770,7 +820,7 @@ function render(){
         ids.splice(toIdx, 0, draggedId);
         applyReorder(ids);
         await saveShelf();
-        render();
+        flipAnimate(grid, render);
       });
     }
   });
@@ -829,27 +879,38 @@ function addBook(entry){
   books.unshift({
     id: 'b'+Date.now()+Math.random().toString(36).slice(2,7),
     title: entry.title, author: entry.author||'', year: entry.year||'',
-    cover: entry.cover||null, status: entry.status||'buy', note: entry.note||'',
+    covers: entry.covers || (entry.cover ? [entry.cover] : []),
+    status: entry.status||'buy', note: entry.note||'',
     rating: null, createdAt: Date.now()
   });
 }
 
-/* book search: Google Books first (best coverage for translated/RU titles), Open Library as backup */
+/* book search: Google Books first (best coverage for translated/RU titles), Open Library as backup.
+   Each result carries a chain of candidate cover URLs (Google thumbnail, then Open Library by ISBN,
+   then Open Library by title match) so a book still gets a real cover if one source is missing it. */
+function extractIsbn(vi){
+  const ids = vi.industryIdentifiers || [];
+  const i13 = ids.find(x=>x.type==='ISBN_13');
+  const i10 = ids.find(x=>x.type==='ISBN_10');
+  return (i13 && i13.identifier) || (i10 && i10.identifier) || null;
+}
 async function searchGoogleBooks(q){
   const res = await fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=8');
   const data = await res.json();
   return (data.items || []).map(it=>{
     const vi = it.volumeInfo || {};
-    let cover = null;
+    const covers = [];
     if(vi.imageLinks){
-      cover = vi.imageLinks.thumbnail || vi.imageLinks.smallThumbnail || null;
-      if(cover) cover = cover.replace('http://','https://');
+      let c = vi.imageLinks.thumbnail || vi.imageLinks.smallThumbnail || null;
+      if(c) covers.push(c.replace('http://','https://'));
     }
+    const isbn = extractIsbn(vi);
+    if(isbn) covers.push('https://covers.openlibrary.org/b/isbn/'+isbn+'-L.jpg');
     return {
       title: vi.title || 'Без названия',
       author: (vi.authors||[])[0] || '',
       year: vi.publishedDate ? vi.publishedDate.slice(0,4) : '',
-      cover
+      covers
     };
   });
 }
@@ -860,7 +921,7 @@ async function searchOpenLibrary(q){
     title: d.title,
     author: (d.author_name||[])[0] || '',
     year: d.first_publish_year || '',
-    cover: d.cover_i ? 'https://covers.openlibrary.org/b/id/'+d.cover_i+'-M.jpg' : null
+    covers: d.cover_i ? ['https://covers.openlibrary.org/b/id/'+d.cover_i+'-L.jpg'] : []
   }));
 }
 
@@ -894,11 +955,8 @@ async function runSearch(q){
       const row = document.createElement('div');
       row.className = 'result-row';
       const opts = STATUSES.map(s=>'<option value="'+s.id+'">'+s.label+'</option>').join('');
-      const coverHtml = d.cover
-        ? '<img class="result-cover loading" src="'+d.cover+'" alt="" referrerpolicy="no-referrer" data-title="'+escapeHtml(d.title)+'" onload="this.classList.remove(\'loading\')">'
-        : '<div class="result-cover placeholder '+hashClass(d.title)+'">'+escapeHtml(d.title)+'</div>';
       row.innerHTML =
-        coverHtml +
+        coverImg(d.covers, d.title, 'result-cover', true) +
         '<div class="result-info">'+
           '<p class="result-title">'+escapeHtml(d.title)+'</p>'+
           '<p class="result-meta">'+escapeHtml(d.author||'')+(d.year ? ' · '+d.year : '')+'</p>'+
@@ -913,7 +971,7 @@ async function runSearch(q){
       const btn = row.querySelector('button');
       const sel = row.querySelector('.result-status');
       btn.addEventListener('click', async ()=>{
-        addBook({ title: d.title, author: d.author, year: d.year, cover: d.cover, status: sel.value });
+        addBook({ title: d.title, author: d.author, year: d.year, covers: d.covers, status: sel.value });
         await saveShelf();
         renderTabs(); renderStats(); render();
         btn.textContent = '✓'; btn.disabled = true;
