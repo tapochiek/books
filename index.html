@@ -123,7 +123,7 @@ header{ padding:40px 0 20px; display:flex; justify-content:space-between; align-
   padding:5px 12px; border-radius:6px; cursor:pointer; white-space:nowrap; font-size:13px;
 }
 
-section{ margin-bottom:36px; }
+section{ margin-bottom:20px; }
 .section-head{ margin-bottom:14px; }
 .section-head h2{ font-family:'Newsreader', serif; font-size:23px; font-weight:500; margin:0 0 4px; }
 .section-head p{ margin:0; font-size:13px; color:var(--ink-soft); }
@@ -158,7 +158,8 @@ section{ margin-bottom:36px; }
   transition:opacity 0.25s ease, transform 0.25s ease;
 }
 .result-row.in{ opacity:1; transform:translateY(0); }
-.result-cover{ width:36px; height:52px; object-fit:cover; border-radius:3px; background:var(--surface-2); flex-shrink:0; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
+.result-cover{ width:36px; height:52px; object-fit:cover; border-radius:3px; background:var(--surface-2); flex-shrink:0; box-shadow:0 1px 3px rgba(0,0,0,0.15); filter:blur(0); transition:filter 0.3s ease; }
+.result-cover.loading{ filter:blur(6px); }
 .result-cover.placeholder{ display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--ink-soft); }
 .result-info{ flex:1; min-width:0; }
 .result-title{ font-size:14px; font-weight:500; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -193,28 +194,59 @@ html[data-theme="dark"] .btn{ color:#12180F; }
 .btn.ghost{ background:none; color:var(--ink-soft); border-color:var(--border); }
 .btn:hover{ opacity:0.9; }
 
-.filter-tabs{ display:flex; gap:4px; margin-bottom:20px; border-bottom:1px solid var(--border); }
+.divider{ display:flex; align-items:center; gap:14px; margin:8px 0 30px; color:var(--ink-soft); font-size:13px; }
+.divider::before, .divider::after{ content:''; flex:1; height:1px; background:var(--border); }
+
+.list-controls{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+.filter-tabs{ display:flex; gap:4px; flex-wrap:wrap; border-bottom:1px solid var(--border); }
 .filter-tab{
   background:none; border:none; color:var(--ink-soft); font-size:13px;
   padding:9px 14px; cursor:pointer; border-bottom:2px solid transparent; position:relative; top:1px;
 }
 .filter-tab.active{ color:var(--ink); border-bottom-color:var(--gold); }
 .filter-tab .n{ color:var(--gold); margin-left:3px; }
+.sort-select{
+  font-family:'Inter', sans-serif; font-size:13px; padding:7px 10px; border-radius:7px;
+  border:1px solid var(--border); background:var(--surface); color:var(--ink); cursor:pointer;
+}
 
-.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(132px, 1fr)); gap:24px 18px; }
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(132px, 1fr)); gap:26px 18px; }
 .book{ display:flex; flex-direction:column; }
+.book.dragging{ opacity:0.35; }
+.book.drag-over .book-cover{ outline:2px dashed var(--gold); outline-offset:3px; }
 .book-cover-wrap{ position:relative; margin-bottom:10px; }
 .book-cover{
   width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:4px;
   box-shadow:0 2px 5px rgba(20,20,15,0.18), 0 8px 16px rgba(20,20,15,0.12);
   display:block; background:var(--surface-2);
+  transition:transform 0.2s ease, box-shadow 0.2s ease;
+}
+.book-cover-wrap:hover .book-cover{
+  transform:rotate(-2deg) translateY(-5px);
+  box-shadow:0 6px 10px rgba(20,20,15,0.22), 0 14px 22px rgba(20,20,15,0.16);
 }
 .book-cover.placeholder{
   display:flex; align-items:center; justify-content:center; text-align:center;
   font-family:'Newsreader', serif; font-size:13px; line-height:1.3; padding:10px;
-  color:var(--accent-ink); background:var(--accent-soft);
 }
-html[data-theme="dark"] .book-cover.placeholder{ color:var(--gold); background:var(--gold-soft); }
+.book-cover.placeholder.c0{ background:var(--accent-soft); color:var(--accent-ink); }
+.book-cover.placeholder.c1{ background:var(--gold-soft); color:var(--gold); }
+.book-cover.placeholder.c2{ background:#E9E1F2; color:#4B3A6B; }
+.book-cover.placeholder.c3{ background:#F2E0DA; color:#8A4630; }
+.book-cover.placeholder.c4{ background:#DCEAF0; color:#2C5A6B; }
+html[data-theme="dark"] .book-cover.placeholder.c2{ background:#332B44; color:#C9BEDD; }
+html[data-theme="dark"] .book-cover.placeholder.c3{ background:#3C2A22; color:#DDA88F; }
+html[data-theme="dark"] .book-cover.placeholder.c4{ background:#1F3540; color:#A9D4E3; }
+.ribbon{
+  position:absolute; top:8px; left:-6px; background:var(--danger); color:#fff;
+  font-size:9.5px; font-weight:500; padding:2px 8px 2px 10px; border-radius:0 3px 3px 0;
+  letter-spacing:0.3px; box-shadow:0 1px 3px rgba(0,0,0,0.25);
+}
+.ribbon::after{
+  content:''; position:absolute; left:0; top:100%; border-style:solid;
+  border-width:3px 3px 0 0; border-color:transparent; filter:brightness(0.6);
+  border-top-color: inherit;
+}
 .book-del{
   position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%;
   border:1px solid var(--border); background:var(--surface); color:var(--ink-soft);
@@ -224,7 +256,9 @@ html[data-theme="dark"] .book-cover.placeholder{ color:var(--gold); background:v
 .book:hover .book-del{ opacity:1; }
 .book-del:hover{ color:var(--danger); border-color:var(--danger); }
 .book-title{ font-family:'Newsreader', serif; font-size:14px; font-weight:500; margin:0 0 2px; line-height:1.3; }
-.book-author{ font-size:11px; color:var(--ink-soft); margin:0 0 8px; }
+.book-author{ font-size:11px; color:var(--ink-soft); margin:0 0 4px; }
+.friend-note{ font-size:10px; color:var(--accent); margin:0 0 6px; }
+.rating{ font-size:11px; letter-spacing:1px; color:var(--gold); margin:0 0 4px; }
 .pills{ display:flex; gap:4px; flex-wrap:wrap; }
 .pill{
   font-size:10.5px; padding:4px 8px; border-radius:12px; border:1px solid var(--border);
@@ -234,6 +268,7 @@ html[data-theme="dark"] .book-cover.placeholder{ color:var(--gold); background:v
 .pill.on.st-read{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent-ink); }
 .pill.on.st-done{ background:var(--surface-2); border-color:var(--ink-soft); color:var(--ink); }
 .pill.readonly{ cursor:default; }
+[draggable="true"]{ cursor:grab; }
 
 .empty{ display:flex; flex-direction:column; align-items:center; gap:14px; padding:40px 0; color:var(--ink-soft); }
 .empty svg{ color:var(--ink-soft); }
@@ -247,13 +282,19 @@ html[data-theme="dark"] .book-cover.placeholder{ color:var(--gold); background:v
 .modal input{ width:100%; font-size:15px; padding:11px 12px; border:1px solid var(--border); border-radius:7px; margin-bottom:12px; background:var(--bg); color:var(--ink); }
 .modal .err{ color:var(--danger); font-size:12px; margin:-8px 0 12px; display:none; }
 .modal .row-actions{ display:flex; justify-content:flex-end; gap:8px; }
+.rate-row{ display:flex; gap:10px; margin-bottom:20px; }
+.rate-btn{ background:none; border:none; font-size:26px; cursor:pointer; opacity:0.3; transition:opacity 0.15s ease, transform 0.15s ease; padding:0; }
+.rate-btn:hover, .rate-btn.hovered{ opacity:1; transform:translateY(-2px); }
 
 .setup-note{ font-size:12px; color:var(--ink-soft); text-align:center; margin-top:40px; line-height:1.6; }
 
 @media (max-width:600px){
   .brand h1{ font-size:26px; }
   header{ padding-top:28px; }
-  .grid{ grid-template-columns:repeat(auto-fill, minmax(104px, 1fr)); gap:20px 12px; }
+  .grid{ grid-template-columns:repeat(auto-fill, minmax(104px, 1fr)); gap:22px 12px; }
+  .overlay{ align-items:flex-end; padding:0; }
+  .modal{ max-width:100%; border-radius:16px 16px 0 0; animation:sheetUp 0.25s ease; }
+  @keyframes sheetUp{ from{ transform:translateY(100%); } to{ transform:translateY(0); } }
 }
 </style>
 </head>
@@ -304,9 +345,23 @@ html[data-theme="dark"] .book-cover.placeholder{ color:var(--gold); background:v
     </div>
   </section>
 
+  <div class="divider" id="shelf-divider">❧</div>
+
   <section>
     <div class="section-head"><h2 id="shelf-heading">Моя полка</h2></div>
-    <div class="filter-tabs" id="tabs"></div>
+    <div class="list-controls">
+      <div class="filter-tabs" id="tabs"></div>
+      <select class="sort-select" id="sort-select">
+        <option value="manual">порядок: вручную</option>
+        <option value="title-asc">название А→Я</option>
+        <option value="title-desc">название Я→А</option>
+        <option value="author-asc">автор А→Я</option>
+        <option value="newest">сначала новые</option>
+        <option value="oldest">сначала старые</option>
+        <option value="year-desc">год: новые</option>
+        <option value="year-asc">год: старые</option>
+      </select>
+    </div>
     <div class="grid" id="grid"></div>
     <div class="empty" id="empty" style="display:none;">
       <svg width="120" height="90" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -330,6 +385,15 @@ html[data-theme="dark"] .book-cover.placeholder{ color:var(--gold); background:v
     <input type="text" id="nick-input" placeholder="например, Тапок" maxlength="24">
     <div class="err" id="nick-err">введи имя</div>
     <div class="row-actions"><button class="btn" id="nick-save">начать</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="rate-overlay">
+  <div class="modal">
+    <h2>Как тебе книга?</h2>
+    <p>Необязательно — можно пропустить</p>
+    <div class="rate-row" id="rate-row"></div>
+    <div class="row-actions"><button class="btn ghost" id="rate-skip">пропустить</button></div>
   </div>
 </div>
 
@@ -364,7 +428,6 @@ const STATUSES = [
   { id:'done', label:'прочитано', short:'готово' },
 ];
 function statusLabel(id){ return (STATUSES.find(s=>s.id===id)||{}).label || id; }
-function statusShort(id){ return (STATUSES.find(s=>s.id===id)||{}).short || id; }
 
 let db = null;
 let fsFns = null;
@@ -411,9 +474,16 @@ let viewing = null;
 let books = [];
 let directory = [];
 let activeTab = 'all';
+let sortMode = 'manual';
+let friendMap = {};
 
 function escapeHtml(s){
   return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function hashClass(str){
+  let h = 0;
+  for(let i=0;i<(str||'').length;i++){ h = (h*31 + str.charCodeAt(i)) >>> 0; }
+  return 'c'+(h % 5);
 }
 
 /* theme */
@@ -474,6 +544,7 @@ async function afterLogin(){
     books = shelf;
     directory = await cloudListShelves();
     if(!directory.includes(me)) directory.push(me);
+    await loadFriendMap();
   } else {
     books = JSON.parse(localGet('shelf:'+me) || '[]');
     directory = [me];
@@ -483,6 +554,23 @@ async function afterLogin(){
   renderTabs();
   renderStats();
   render();
+}
+
+async function loadFriendMap(){
+  friendMap = {};
+  if(!cloudEnabled) return;
+  for(const name of directory){
+    if(name === me) continue;
+    try{
+      const shelf = await cloudGetShelf(name) || [];
+      shelf.forEach(b=>{
+        const key = (b.title||'').trim().toLowerCase();
+        if(!key) return;
+        friendMap[key] = friendMap[key] || [];
+        if(!friendMap[key].includes(name)) friendMap[key].push(name);
+      });
+    }catch(e){}
+  }
 }
 
 function renderWho(){
@@ -531,6 +619,7 @@ async function switchTo(name){
   const readOnly = name !== me;
   document.getElementById('viewing-banner').style.display = readOnly ? 'flex' : 'none';
   document.getElementById('find-section').style.display = readOnly ? 'none' : 'block';
+  document.getElementById('shelf-divider').style.display = readOnly ? 'none' : 'flex';
   document.getElementById('shelf-heading').textContent = readOnly ? 'Полка «'+name+'»' : 'Моя полка';
   if(readOnly) document.getElementById('viewing-text').textContent = 'ты смотришь полку «'+name+'» — только для чтения';
   activeTab = 'all';
@@ -559,49 +648,146 @@ function renderTabs(){
   });
 }
 
-function coverImg(coverUrl, title, cls){
-  if(coverUrl) return '<img class="'+cls+'" src="'+coverUrl+'" alt="">';
-  return '<div class="'+cls+' placeholder">'+escapeHtml(title||'')+'</div>';
+document.getElementById('sort-select').addEventListener('change', e=>{
+  sortMode = e.target.value;
+  render();
+});
+
+function sortBooks(arr){
+  if(sortMode === 'manual') return arr;
+  const a = arr.slice();
+  switch(sortMode){
+    case 'title-asc': a.sort((x,y)=> (x.title||'').localeCompare(y.title||'', 'ru')); break;
+    case 'title-desc': a.sort((x,y)=> (y.title||'').localeCompare(x.title||'', 'ru')); break;
+    case 'author-asc': a.sort((x,y)=> (x.author||'').localeCompare(y.author||'', 'ru')); break;
+    case 'newest': a.sort((x,y)=> (y.createdAt||0)-(x.createdAt||0)); break;
+    case 'oldest': a.sort((x,y)=> (x.createdAt||0)-(y.createdAt||0)); break;
+    case 'year-desc': a.sort((x,y)=> (parseInt(y.year)||0)-(parseInt(x.year)||0)); break;
+    case 'year-asc': a.sort((x,y)=> (parseInt(x.year)||0)-(parseInt(y.year)||0)); break;
+  }
+  return a;
 }
+
+function applyReorder(newOrderIds){
+  const idSet = new Set(newOrderIds);
+  const queue = newOrderIds.slice();
+  const originalById = {};
+  books.forEach(b=>{ originalById[b.id] = b; });
+  books = books.map(b=>{
+    if(idSet.has(b.id)){
+      const nextId = queue.shift();
+      return originalById[nextId];
+    }
+    return b;
+  });
+}
+
+function coverImg(coverUrl, title, cls){
+  if(coverUrl) return '<img class="'+cls+'" src="'+coverUrl+'" alt="" referrerpolicy="no-referrer" data-title="'+escapeHtml(title||'')+'">';
+  return '<div class="'+cls+' placeholder '+hashClass(title)+'">'+escapeHtml(title||'')+'</div>';
+}
+function attachCoverFallback(scopeEl){
+  scopeEl.querySelectorAll('img.book-cover, img.result-cover').forEach(img=>{
+    img.addEventListener('error', ()=>{
+      const title = img.getAttribute('data-title') || '';
+      const div = document.createElement('div');
+      div.className = img.className.replace('loading','').trim() + ' placeholder ' + hashClass(title);
+      div.textContent = title;
+      img.replaceWith(div);
+    }, { once:true });
+  });
+}
+
+const RATE_ICONS = '🔖';
 
 function render(){
   const grid = document.getElementById('grid');
   const empty = document.getElementById('empty');
   const emptyText = document.getElementById('empty-text');
   const readOnly = viewing !== me;
+  const manualDrag = sortMode === 'manual' && !readOnly;
+
   let list = books.slice();
   if(activeTab !== 'all') list = list.filter(b=>b.status===activeTab);
+  list = sortBooks(list);
 
   grid.innerHTML = '';
   if(list.length===0){
     empty.style.display='flex';
-    emptyText.textContent = books.length===0 ? (readOnly ? 'здесь пока пусто' : 'полка пуста — найди книгу выше') : 'ничего в этой вкладке';
+    emptyText.textContent = books.length===0
+      ? (readOnly ? 'у '+viewing+' здесь пока пусто' : 'ни одной книги — самое время начать')
+      : 'тут пока пусто';
     return;
   }
   empty.style.display='none';
 
+  const now = Date.now();
   list.forEach(b=>{
     const book = document.createElement('div');
     book.className = 'book';
+    if(manualDrag) book.draggable = true;
+    const isNew = b.createdAt && (now - b.createdAt) < 3*24*60*60*1000;
+    const friends = friendMap[(b.title||'').trim().toLowerCase()];
     const pills = STATUSES.map(s=>
       '<button class="pill'+(b.status===s.id?' on st-'+s.id:'')+(readOnly?' readonly':'')+'" data-id="'+b.id+'" data-status="'+s.id+'"'+(readOnly?' disabled':'')+'>'+s.short+'</button>'
     ).join('');
     book.innerHTML =
       '<div class="book-cover-wrap">'+
-        coverImg(b.coverId, b.title, 'book-cover')+
+        (isNew ? '<span class="ribbon">новое</span>' : '')+
+        coverImg(b.cover, b.title, 'book-cover')+
         (readOnly ? '' : '<button class="book-del" data-id="'+b.id+'" title="удалить">✕</button>')+
       '</div>'+
       '<p class="book-title">'+escapeHtml(b.title)+'</p>'+
       '<p class="book-author">'+escapeHtml(b.author||'')+(b.year ? ' · '+b.year : '')+'</p>'+
+      (friends && friends.length ? '<p class="friend-note">есть у '+escapeHtml(friends.join(', '))+'</p>' : '')+
+      (b.rating ? '<p class="rating">'+RATE_ICONS.repeat(b.rating)+'</p>' : '')+
       '<div class="pills">'+pills+'</div>';
     grid.appendChild(book);
+
+    if(manualDrag){
+      book.addEventListener('dragstart', e=>{
+        e.dataTransfer.setData('text/plain', b.id);
+        setTimeout(()=>book.classList.add('dragging'), 0);
+      });
+      book.addEventListener('dragend', ()=>{
+        book.classList.remove('dragging');
+        grid.querySelectorAll('.drag-over').forEach(el=>el.classList.remove('drag-over'));
+      });
+      book.addEventListener('dragover', e=>{ e.preventDefault(); book.classList.add('drag-over'); });
+      book.addEventListener('dragleave', ()=>{ book.classList.remove('drag-over'); });
+      book.addEventListener('drop', async e=>{
+        e.preventDefault();
+        book.classList.remove('drag-over');
+        const draggedId = e.dataTransfer.getData('text/plain');
+        if(!draggedId || draggedId === b.id) return;
+        const ids = list.map(x=>x.id);
+        const fromIdx = ids.indexOf(draggedId);
+        if(fromIdx === -1) return;
+        ids.splice(fromIdx, 1);
+        const rect = book.getBoundingClientRect();
+        const after = (e.clientY - rect.top) > rect.height/2;
+        let toIdx = ids.indexOf(b.id) + (after ? 1 : 0);
+        ids.splice(toIdx, 0, draggedId);
+        applyReorder(ids);
+        await saveShelf();
+        render();
+      });
+    }
   });
+
+  attachCoverFallback(grid);
 
   if(!readOnly){
     grid.querySelectorAll('.pill[data-id]').forEach(p=>{
       p.addEventListener('click', async ()=>{
         const bk = books.find(x=>x.id===p.getAttribute('data-id'));
-        if(bk){ bk.status = p.getAttribute('data-status'); await saveShelf(); renderTabs(); renderStats(); render(); }
+        if(!bk) return;
+        const newStatus = p.getAttribute('data-status');
+        const becameDone = newStatus==='done' && bk.status!=='done' && !bk.rating;
+        bk.status = newStatus;
+        await saveShelf();
+        renderTabs(); renderStats(); render();
+        if(becameDone) openRateOverlay(bk.id);
       });
     });
     grid.querySelectorAll('.book-del').forEach(btn=>{
@@ -613,12 +799,38 @@ function render(){
   }
 }
 
+function openRateOverlay(bookId){
+  const row = document.getElementById('rate-row');
+  row.innerHTML = '';
+  for(let i=1;i<=5;i++){
+    const b = document.createElement('button');
+    b.className = 'rate-btn';
+    b.textContent = RATE_ICONS;
+    b.addEventListener('mouseenter', ()=>{
+      row.querySelectorAll('.rate-btn').forEach((el,idx)=>el.classList.toggle('hovered', idx < i));
+    });
+    b.addEventListener('click', async ()=>{
+      const bk = books.find(x=>x.id===bookId);
+      if(bk){ bk.rating = i; await saveShelf(); render(); }
+      document.getElementById('rate-overlay').classList.remove('open');
+    });
+    row.appendChild(b);
+  }
+  row.addEventListener('mouseleave', ()=>{
+    row.querySelectorAll('.rate-btn').forEach(el=>el.classList.remove('hovered'));
+  });
+  document.getElementById('rate-overlay').classList.add('open');
+}
+document.getElementById('rate-skip').addEventListener('click', ()=>{
+  document.getElementById('rate-overlay').classList.remove('open');
+});
+
 function addBook(entry){
   books.unshift({
     id: 'b'+Date.now()+Math.random().toString(36).slice(2,7),
     title: entry.title, author: entry.author||'', year: entry.year||'',
     cover: entry.cover||null, status: entry.status||'buy', note: entry.note||'',
-    createdAt: Date.now()
+    rating: null, createdAt: Date.now()
   });
 }
 
@@ -682,8 +894,11 @@ async function runSearch(q){
       const row = document.createElement('div');
       row.className = 'result-row';
       const opts = STATUSES.map(s=>'<option value="'+s.id+'">'+s.label+'</option>').join('');
+      const coverHtml = d.cover
+        ? '<img class="result-cover loading" src="'+d.cover+'" alt="" referrerpolicy="no-referrer" data-title="'+escapeHtml(d.title)+'" onload="this.classList.remove(\'loading\')">'
+        : '<div class="result-cover placeholder '+hashClass(d.title)+'">'+escapeHtml(d.title)+'</div>';
       row.innerHTML =
-        coverImg(d.cover, d.title, 'result-cover') +
+        coverHtml +
         '<div class="result-info">'+
           '<p class="result-title">'+escapeHtml(d.title)+'</p>'+
           '<p class="result-meta">'+escapeHtml(d.author||'')+(d.year ? ' · '+d.year : '')+'</p>'+
