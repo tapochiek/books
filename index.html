@@ -19,44 +19,53 @@
   --accent-soft: #E4EBE0;
   --accent-ink: #1F3826;
   --gold: #B08628;
+  --gold-soft: #F3E8CE;
   --danger: #A23B2E;
   --radius: 10px;
   --shadow: 0 1px 2px rgba(35,40,31,0.06), 0 8px 20px rgba(35,40,31,0.05);
+  --texture: none;
 }
 html[data-theme="dark"]{
-  --bg: #1B1D18;
-  --surface: #23261F;
-  --surface-2: #2C2F27;
-  --border: #3A3D33;
+  --bg: #1A1D19;
+  --surface: #24271F;
+  --surface-2: #2D3026;
+  --border: #3B3E33;
   --ink: #EAE7DA;
   --ink-soft: #9C9C8C;
-  --accent: #7FAE8B;
-  --accent-soft: #2C3B2C;
+  --accent: #8FBE9B;
+  --accent-soft: #2A3B2C;
   --accent-ink: #C9E3CE;
-  --gold: #D9B45C;
+  --gold: #E0B563;
+  --gold-soft: #3A311E;
   --danger: #E07A64;
-  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 24px rgba(0,0,0,0.28);
+  --shadow: 0 1px 2px rgba(0,0,0,0.35), 0 10px 24px rgba(0,0,0,0.3);
+  --texture: radial-gradient(rgba(234,231,218,0.035) 1px, transparent 1px);
 }
 *{box-sizing:border-box;}
 body{
   margin:0;
-  background:var(--bg);
+  background-color:var(--bg);
+  background-image:var(--texture);
+  background-size:14px 14px;
   color:var(--ink);
   font-family:'Inter', sans-serif;
   min-height:100vh;
   transition:background 0.2s ease, color 0.2s ease;
 }
-.wrap{ max-width:920px; margin:0 auto; padding:0 24px 70px; }
+.wrap{ max-width:960px; margin:0 auto; padding:0 24px 70px; }
 
-header{ padding:40px 0 24px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
+header{ padding:40px 0 20px; display:flex; justify-content:space-between; align-items:flex-start; gap:16px; flex-wrap:wrap; }
 .brand h1{
   font-family:'Newsreader', serif;
   font-weight:600;
-  font-size:32px;
-  margin:0 0 6px;
+  font-size:34px;
+  margin:0 0 8px;
   letter-spacing:-0.2px;
 }
-.brand p{ margin:0; font-size:14px; color:var(--ink-soft); }
+.stats{ display:flex; gap:18px; flex-wrap:wrap; }
+.stat{ display:flex; align-items:baseline; gap:6px; }
+.stat b{ font-family:'Newsreader', serif; font-size:20px; font-weight:600; color:var(--ink); }
+.stat span{ font-size:12px; color:var(--ink-soft); }
 
 .header-actions{ display:flex; align-items:center; gap:10px; }
 .icon-btn{
@@ -85,7 +94,7 @@ header{ padding:40px 0 24px; display:flex; justify-content:space-between; align-
   font-size:12px; cursor:pointer; text-decoration:underline; padding:0;
 }
 
-.shelves-row{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:28px; }
+.shelves-row{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:24px 0 28px; }
 .shelves-row .lbl{ font-size:13px; color:var(--ink-soft); margin-right:2px; }
 .shelf-chip{
   border:1px solid var(--border);
@@ -114,17 +123,17 @@ header{ padding:40px 0 24px; display:flex; justify-content:space-between; align-
   padding:5px 12px; border-radius:6px; cursor:pointer; white-space:nowrap; font-size:13px;
 }
 
-section{ margin-bottom:32px; }
-.section-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
-.section-head h2{ font-family:'Newsreader', serif; font-size:20px; font-weight:500; margin:0; }
-.section-head span{ font-size:13px; color:var(--ink-soft); }
+section{ margin-bottom:36px; }
+.section-head{ margin-bottom:14px; }
+.section-head h2{ font-family:'Newsreader', serif; font-size:23px; font-weight:500; margin:0 0 4px; }
+.section-head p{ margin:0; font-size:13px; color:var(--ink-soft); }
 
 .search-box{ position:relative; }
 .search-box input{
   width:100%;
   font-family:'Inter', sans-serif;
-  font-size:15px;
-  padding:13px 46px 13px 16px;
+  font-size:17px;
+  padding:16px 50px 16px 18px;
   border-radius:var(--radius);
   border:1px solid var(--border);
   background:var(--surface);
@@ -132,7 +141,7 @@ section{ margin-bottom:32px; }
 }
 .search-box input:focus{ outline:none; border-color:var(--accent); }
 .search-box .spinner{
-  position:absolute; right:16px; top:50%; transform:translateY(-50%);
+  position:absolute; right:18px; top:50%; transform:translateY(-50%);
   width:16px; height:16px; border-radius:50%;
   border:2px solid var(--border); border-top-color:var(--accent);
   animation:spin 0.7s linear infinite; display:none;
@@ -140,13 +149,16 @@ section{ margin-bottom:32px; }
 .search-box .spinner.on{ display:block; }
 @keyframes spin{ to{ transform:translateY(-50%) rotate(360deg); } }
 
-.results{ margin-top:12px; display:flex; flex-direction:column; gap:8px; }
+.results{ margin-top:14px; display:flex; flex-direction:column; gap:8px; }
 .result-row{
   display:flex; gap:12px; align-items:center;
   background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
   padding:10px 12px;
+  opacity:0; transform:translateY(6px);
+  transition:opacity 0.25s ease, transform 0.25s ease;
 }
-.result-cover{ width:36px; height:52px; object-fit:cover; border-radius:3px; background:var(--surface-2); flex-shrink:0; }
+.result-row.in{ opacity:1; transform:translateY(0); }
+.result-cover{ width:36px; height:52px; object-fit:cover; border-radius:3px; background:var(--surface-2); flex-shrink:0; box-shadow:0 1px 3px rgba(0,0,0,0.15); }
 .result-cover.placeholder{ display:flex; align-items:center; justify-content:center; font-size:16px; color:var(--ink-soft); }
 .result-info{ flex:1; min-width:0; }
 .result-title{ font-size:14px; font-weight:500; margin:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -181,7 +193,7 @@ html[data-theme="dark"] .btn{ color:#12180F; }
 .btn.ghost{ background:none; color:var(--ink-soft); border-color:var(--border); }
 .btn:hover{ opacity:0.9; }
 
-.filter-tabs{ display:flex; gap:4px; margin-bottom:14px; border-bottom:1px solid var(--border); }
+.filter-tabs{ display:flex; gap:4px; margin-bottom:20px; border-bottom:1px solid var(--border); }
 .filter-tab{
   background:none; border:none; color:var(--ink-soft); font-size:13px;
   padding:9px 14px; cursor:pointer; border-bottom:2px solid transparent; position:relative; top:1px;
@@ -189,27 +201,43 @@ html[data-theme="dark"] .btn{ color:#12180F; }
 .filter-tab.active{ color:var(--ink); border-bottom-color:var(--gold); }
 .filter-tab .n{ color:var(--gold); margin-left:3px; }
 
-.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(220px, 1fr)); gap:14px; }
-.card{
-  background:var(--surface); border:1px solid var(--border); border-radius:var(--radius);
-  padding:14px; display:flex; gap:12px; box-shadow:var(--shadow);
+.grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(132px, 1fr)); gap:24px 18px; }
+.book{ display:flex; flex-direction:column; }
+.book-cover-wrap{ position:relative; margin-bottom:10px; }
+.book-cover{
+  width:100%; aspect-ratio:2/3; object-fit:cover; border-radius:4px;
+  box-shadow:0 2px 5px rgba(20,20,15,0.18), 0 8px 16px rgba(20,20,15,0.12);
+  display:block; background:var(--surface-2);
 }
-.card-cover{ width:52px; height:76px; border-radius:4px; object-fit:cover; background:var(--surface-2); flex-shrink:0; }
-.card-cover.placeholder{ display:flex; align-items:center; justify-content:center; font-size:22px; color:var(--ink-soft); }
-.card-body{ flex:1; min-width:0; display:flex; flex-direction:column; }
-.card-title{ font-family:'Newsreader', serif; font-size:16px; font-weight:500; margin:0 0 2px; line-height:1.25; }
-.card-author{ font-size:12px; color:var(--ink-soft); margin:0 0 8px; }
-.card-note{ font-size:12px; color:var(--ink-soft); margin:0 0 8px; line-height:1.4; }
-.card-bottom{ margin-top:auto; display:flex; justify-content:space-between; align-items:center; gap:8px; }
-.status-select{
-  font-size:12px; padding:5px 8px; border-radius:6px; border:1px solid var(--border);
-  background:var(--bg); color:var(--ink); cursor:pointer; max-width:120px;
+.book-cover.placeholder{
+  display:flex; align-items:center; justify-content:center; text-align:center;
+  font-family:'Newsreader', serif; font-size:13px; line-height:1.3; padding:10px;
+  color:var(--accent-ink); background:var(--accent-soft);
 }
-.status-pill{ font-size:12px; color:var(--ink-soft); }
-.card-del{ background:none; border:none; color:var(--ink-soft); font-size:12px; cursor:pointer; text-decoration:underline; }
-.card-del:hover{ color:var(--danger); }
+html[data-theme="dark"] .book-cover.placeholder{ color:var(--gold); background:var(--gold-soft); }
+.book-del{
+  position:absolute; top:-8px; right:-8px; width:24px; height:24px; border-radius:50%;
+  border:1px solid var(--border); background:var(--surface); color:var(--ink-soft);
+  font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  opacity:0; transition:opacity 0.15s ease;
+}
+.book:hover .book-del{ opacity:1; }
+.book-del:hover{ color:var(--danger); border-color:var(--danger); }
+.book-title{ font-family:'Newsreader', serif; font-size:14px; font-weight:500; margin:0 0 2px; line-height:1.3; }
+.book-author{ font-size:11px; color:var(--ink-soft); margin:0 0 8px; }
+.pills{ display:flex; gap:4px; flex-wrap:wrap; }
+.pill{
+  font-size:10.5px; padding:4px 8px; border-radius:12px; border:1px solid var(--border);
+  background:var(--surface); color:var(--ink-soft); cursor:pointer;
+}
+.pill.on.st-buy{ background:var(--gold-soft); border-color:var(--gold); color:var(--gold); }
+.pill.on.st-read{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent-ink); }
+.pill.on.st-done{ background:var(--surface-2); border-color:var(--ink-soft); color:var(--ink); }
+.pill.readonly{ cursor:default; }
 
-.empty{ font-size:14px; color:var(--ink-soft); padding:24px 0; text-align:center; }
+.empty{ display:flex; flex-direction:column; align-items:center; gap:14px; padding:40px 0; color:var(--ink-soft); }
+.empty svg{ color:var(--ink-soft); }
+.empty p{ margin:0; font-size:14px; }
 
 .overlay{ position:fixed; inset:0; background:rgba(20,22,17,0.55); display:none; align-items:center; justify-content:center; z-index:50; padding:20px; }
 .overlay.open{ display:flex; }
@@ -225,6 +253,7 @@ html[data-theme="dark"] .btn{ color:#12180F; }
 @media (max-width:600px){
   .brand h1{ font-size:26px; }
   header{ padding-top:28px; }
+  .grid{ grid-template-columns:repeat(auto-fill, minmax(104px, 1fr)); gap:20px 12px; }
 }
 </style>
 </head>
@@ -234,7 +263,7 @@ html[data-theme="dark"] .btn{ color:#12180F; }
   <header>
     <div class="brand">
       <h1>Книжная полка</h1>
-      <p>что купить, что прочитать</p>
+      <div class="stats" id="stats"></div>
     </div>
     <div class="header-actions">
       <div class="who-pill" id="who-pill"></div>
@@ -250,7 +279,10 @@ html[data-theme="dark"] .btn{ color:#12180F; }
   </div>
 
   <section id="find-section">
-    <div class="section-head"><h2>Найти книгу</h2><span>по названию или автору</span></div>
+    <div class="section-head">
+      <h2>Найти книгу</h2>
+      <p>по названию или автору — обложка подтянется сама</p>
+    </div>
     <div class="search-box">
       <input type="text" id="book-search" placeholder="например, Мастер и Маргарита">
       <div class="spinner" id="search-spinner"></div>
@@ -276,7 +308,16 @@ html[data-theme="dark"] .btn{ color:#12180F; }
     <div class="section-head"><h2 id="shelf-heading">Моя полка</h2></div>
     <div class="filter-tabs" id="tabs"></div>
     <div class="grid" id="grid"></div>
-    <div class="empty" id="empty" style="display:none;"></div>
+    <div class="empty" id="empty" style="display:none;">
+      <svg width="120" height="90" viewBox="0 0 120 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="8" y="66" width="104" height="6" rx="2" fill="currentColor" opacity="0.25"/>
+        <rect x="18" y="30" width="16" height="38" rx="1.5" fill="currentColor" opacity="0.35"/>
+        <rect x="37" y="20" width="16" height="48" rx="1.5" fill="currentColor" opacity="0.5"/>
+        <rect x="56" y="14" width="16" height="54" transform="rotate(-6 56 14)" rx="1.5" fill="currentColor" opacity="0.4"/>
+        <rect x="76" y="26" width="16" height="42" rx="1.5" fill="currentColor" opacity="0.3"/>
+      </svg>
+      <p id="empty-text"></p>
+    </div>
   </section>
 
   <p class="setup-note" id="setup-note"></p>
@@ -318,11 +359,12 @@ const FIREBASE_CONFIG = {
 };
 
 const STATUSES = [
-  { id:'buy', label:'хочу купить' },
-  { id:'read', label:'хочу прочитать' },
-  { id:'done', label:'прочитано' },
+  { id:'buy', label:'хочу купить', short:'купить' },
+  { id:'read', label:'хочу прочитать', short:'читать' },
+  { id:'done', label:'прочитано', short:'готово' },
 ];
 function statusLabel(id){ return (STATUSES.find(s=>s.id===id)||{}).label || id; }
+function statusShort(id){ return (STATUSES.find(s=>s.id===id)||{}).short || id; }
 
 let db = null;
 let fsFns = null;
@@ -369,7 +411,6 @@ let viewing = null;
 let books = [];
 let directory = [];
 let activeTab = 'all';
-let manualStatus = 'buy';
 
 function escapeHtml(s){
   return (s||'').replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -440,6 +481,7 @@ async function afterLogin(){
   renderWho();
   renderShelves();
   renderTabs();
+  renderStats();
   render();
 }
 
@@ -465,6 +507,20 @@ function renderShelves(){
   });
 }
 
+function renderStats(){
+  const wrap = document.getElementById('stats');
+  const total = books.length;
+  const buy = books.filter(b=>b.status==='buy').length;
+  const read = books.filter(b=>b.status==='read').length;
+  const done = books.filter(b=>b.status==='done').length;
+  if(total===0){ wrap.innerHTML = '<div class="stat"><span>полка пока пуста</span></div>'; return; }
+  wrap.innerHTML =
+    '<div class="stat"><b>'+total+'</b><span>всего</span></div>'+
+    '<div class="stat"><b>'+buy+'</b><span>купить</span></div>'+
+    '<div class="stat"><b>'+read+'</b><span>прочитать</span></div>'+
+    '<div class="stat"><b>'+done+'</b><span>прочитано</span></div>';
+}
+
 async function switchTo(name){
   viewing = name;
   if(cloudEnabled){
@@ -480,6 +536,7 @@ async function switchTo(name){
   activeTab = 'all';
   renderShelves();
   renderTabs();
+  renderStats();
   render();
 }
 document.getElementById('back-to-mine').addEventListener('click', ()=>switchTo(me));
@@ -502,59 +559,55 @@ function renderTabs(){
   });
 }
 
-function coverImg(coverId, cls){
-  if(coverId) return '<img class="'+cls+'" src="https://covers.openlibrary.org/b/id/'+coverId+'-M.jpg" alt="">';
-  return '<div class="'+cls+' placeholder">▤</div>';
+function coverImg(coverUrl, title, cls){
+  if(coverUrl) return '<img class="'+cls+'" src="'+coverUrl+'" alt="">';
+  return '<div class="'+cls+' placeholder">'+escapeHtml(title||'')+'</div>';
 }
 
 function render(){
   const grid = document.getElementById('grid');
   const empty = document.getElementById('empty');
+  const emptyText = document.getElementById('empty-text');
   const readOnly = viewing !== me;
   let list = books.slice();
   if(activeTab !== 'all') list = list.filter(b=>b.status===activeTab);
 
   grid.innerHTML = '';
   if(list.length===0){
-    empty.style.display='block';
-    empty.textContent = books.length===0 ? (readOnly ? 'здесь пока пусто' : 'полка пуста — найди книгу выше') : 'ничего в этой вкладке';
+    empty.style.display='flex';
+    emptyText.textContent = books.length===0 ? (readOnly ? 'здесь пока пусто' : 'полка пуста — найди книгу выше') : 'ничего в этой вкладке';
     return;
   }
   empty.style.display='none';
 
   list.forEach(b=>{
-    const card = document.createElement('div');
-    card.className = 'card';
-    let bottom;
-    if(readOnly){
-      bottom = '<span class="status-pill">'+statusLabel(b.status)+'</span>';
-    } else {
-      const opts = STATUSES.map(s=>'<option value="'+s.id+'"'+(s.id===b.status?' selected':'')+'>'+s.label+'</option>').join('');
-      bottom = '<select class="status-select" data-id="'+b.id+'">'+opts+'</select>'+
-               '<button class="card-del" data-id="'+b.id+'">удалить</button>';
-    }
-    card.innerHTML =
-      coverImg(b.coverId, 'card-cover') +
-      '<div class="card-body">'+
-        '<p class="card-title">'+escapeHtml(b.title)+'</p>'+
-        '<p class="card-author">'+escapeHtml(b.author||'')+(b.year ? ' · '+b.year : '')+'</p>'+
-        (b.note ? '<p class="card-note">'+escapeHtml(b.note)+'</p>' : '') +
-        '<div class="card-bottom">'+bottom+'</div>'+
-      '</div>';
-    grid.appendChild(card);
+    const book = document.createElement('div');
+    book.className = 'book';
+    const pills = STATUSES.map(s=>
+      '<button class="pill'+(b.status===s.id?' on st-'+s.id:'')+(readOnly?' readonly':'')+'" data-id="'+b.id+'" data-status="'+s.id+'"'+(readOnly?' disabled':'')+'>'+s.short+'</button>'
+    ).join('');
+    book.innerHTML =
+      '<div class="book-cover-wrap">'+
+        coverImg(b.coverId, b.title, 'book-cover')+
+        (readOnly ? '' : '<button class="book-del" data-id="'+b.id+'" title="удалить">✕</button>')+
+      '</div>'+
+      '<p class="book-title">'+escapeHtml(b.title)+'</p>'+
+      '<p class="book-author">'+escapeHtml(b.author||'')+(b.year ? ' · '+b.year : '')+'</p>'+
+      '<div class="pills">'+pills+'</div>';
+    grid.appendChild(book);
   });
 
   if(!readOnly){
-    grid.querySelectorAll('.status-select[data-id]').forEach(sel=>{
-      sel.addEventListener('change', async ()=>{
-        const book = books.find(x=>x.id===sel.getAttribute('data-id'));
-        if(book){ book.status = sel.value; await saveShelf(); renderTabs(); render(); }
+    grid.querySelectorAll('.pill[data-id]').forEach(p=>{
+      p.addEventListener('click', async ()=>{
+        const bk = books.find(x=>x.id===p.getAttribute('data-id'));
+        if(bk){ bk.status = p.getAttribute('data-status'); await saveShelf(); renderTabs(); renderStats(); render(); }
       });
     });
-    grid.querySelectorAll('.card-del').forEach(btn=>{
+    grid.querySelectorAll('.book-del').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         books = books.filter(x=>x.id!==btn.getAttribute('data-id'));
-        await saveShelf(); renderTabs(); render();
+        await saveShelf(); renderTabs(); renderStats(); render();
       });
     });
   }
@@ -564,12 +617,41 @@ function addBook(entry){
   books.unshift({
     id: 'b'+Date.now()+Math.random().toString(36).slice(2,7),
     title: entry.title, author: entry.author||'', year: entry.year||'',
-    coverId: entry.coverId||null, status: entry.status||'buy', note: entry.note||'',
+    cover: entry.cover||null, status: entry.status||'buy', note: entry.note||'',
     createdAt: Date.now()
   });
 }
 
-/* book search (Open Library, no key needed) */
+/* book search: Google Books first (best coverage for translated/RU titles), Open Library as backup */
+async function searchGoogleBooks(q){
+  const res = await fetch('https://www.googleapis.com/books/v1/volumes?q='+encodeURIComponent(q)+'&maxResults=8');
+  const data = await res.json();
+  return (data.items || []).map(it=>{
+    const vi = it.volumeInfo || {};
+    let cover = null;
+    if(vi.imageLinks){
+      cover = vi.imageLinks.thumbnail || vi.imageLinks.smallThumbnail || null;
+      if(cover) cover = cover.replace('http://','https://');
+    }
+    return {
+      title: vi.title || 'Без названия',
+      author: (vi.authors||[])[0] || '',
+      year: vi.publishedDate ? vi.publishedDate.slice(0,4) : '',
+      cover
+    };
+  });
+}
+async function searchOpenLibrary(q){
+  const res = await fetch('https://openlibrary.org/search.json?q='+encodeURIComponent(q)+'&limit=8&fields=title,author_name,first_publish_year,cover_i');
+  const data = await res.json();
+  return (data.docs || []).map(d=>({
+    title: d.title,
+    author: (d.author_name||[])[0] || '',
+    year: d.first_publish_year || '',
+    cover: d.cover_i ? 'https://covers.openlibrary.org/b/id/'+d.cover_i+'-M.jpg' : null
+  }));
+}
+
 let searchTimer = null;
 const searchInput = document.getElementById('book-search');
 searchInput.addEventListener('input', ()=>{
@@ -585,37 +667,43 @@ async function runSearch(q){
   const hint = document.getElementById('search-hint');
   spinner.classList.add('on');
   try{
-    const res = await fetch('https://openlibrary.org/search.json?q='+encodeURIComponent(q)+'&limit=6&fields=title,author_name,first_publish_year,cover_i');
-    const data = await res.json();
-    const docs = (data.docs || []).slice(0,6);
+    let docs = [];
+    try{ docs = await searchGoogleBooks(q); }catch(e){ docs = []; }
+    if(docs.length < 3){
+      try{
+        const ol = await searchOpenLibrary(q);
+        const seen = new Set(docs.map(d=>d.title.toLowerCase()));
+        ol.forEach(d=>{ if(!seen.has(d.title.toLowerCase())){ docs.push(d); seen.add(d.title.toLowerCase()); } });
+      }catch(e){}
+    }
+    docs = docs.slice(0,8);
     results.innerHTML = '';
-    docs.forEach(d=>{
+    docs.forEach((d, i)=>{
       const row = document.createElement('div');
       row.className = 'result-row';
       const opts = STATUSES.map(s=>'<option value="'+s.id+'">'+s.label+'</option>').join('');
       row.innerHTML =
-        coverImg(d.cover_i, 'result-cover') +
+        coverImg(d.cover, d.title, 'result-cover') +
         '<div class="result-info">'+
           '<p class="result-title">'+escapeHtml(d.title)+'</p>'+
-          '<p class="result-meta">'+escapeHtml((d.author_name||[]).slice(0,2).join(', '))+(d.first_publish_year ? ' · '+d.first_publish_year : '')+'</p>'+
+          '<p class="result-meta">'+escapeHtml(d.author||'')+(d.year ? ' · '+d.year : '')+'</p>'+
         '</div>'+
         '<select class="result-status">'+opts+'</select>'+
-        '<button class="btn" data-idx="'+docs.indexOf(d)+'">+</button>';
+        '<button class="btn" data-idx="'+i+'">+</button>';
       results.appendChild(row);
+      requestAnimationFrame(()=>{
+        setTimeout(()=>row.classList.add('in'), i*40);
+      });
       const btn = row.querySelector('button');
       const sel = row.querySelector('.result-status');
       btn.addEventListener('click', async ()=>{
-        addBook({
-          title: d.title, author: (d.author_name||[])[0]||'', year: d.first_publish_year||'',
-          coverId: d.cover_i||null, status: sel.value
-        });
+        addBook({ title: d.title, author: d.author, year: d.year, cover: d.cover, status: sel.value });
         await saveShelf();
-        renderTabs(); render();
+        renderTabs(); renderStats(); render();
         btn.textContent = '✓'; btn.disabled = true;
       });
     });
-    hint.style.display = docs.length ? 'block' : 'block';
-    hint.firstChild ? null : null;
+    hint.style.display = 'block';
     if(!docs.length){ results.innerHTML = ''; }
   }catch(e){
     results.innerHTML = '<div class="hint">не получилось найти — проверь соединение</div>';
@@ -640,7 +728,7 @@ document.getElementById('m-save').addEventListener('click', async ()=>{
   await saveShelf();
   document.getElementById('manual-form').classList.remove('open');
   document.getElementById('m-title').value=''; document.getElementById('m-author').value='';
-  renderTabs(); render();
+  renderTabs(); renderStats(); render();
 });
 
 boot();
